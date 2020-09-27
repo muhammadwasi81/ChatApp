@@ -46,6 +46,7 @@ body{
 .icon{
     font-size: 20px;
     color: #9cA1A3;
+    cursor: pointer;
 }
 .chat-pic{
     width: 30px;
@@ -73,6 +74,10 @@ body{
     height: 94vh;
 }
 #messages{
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+#lstChat{
     overflow-y: scroll;
     overflow-x: hidden;
 }

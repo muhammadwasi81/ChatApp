@@ -62,6 +62,18 @@ function LoadChatMessages(chatKey, friendPhoto){
         chats.forEach(function (data) {
             var chat = data.val();
             var dateTime = chat.dateTime.split(",");
+            var msg = '';
+            if (chat.msgType === 'image') {
+                msg = `<img src='${chat.msg}' class="img-fluid" />`;
+            }
+            else if (chat.msgType === 'audio') {
+                msg = `<audio controls>
+                        <source src="${chat.msg}" type="video/webm" />
+                    </audio>`;
+            }
+            else {
+                msg = chat.msg;
+            }
             if (chat.userId !== currentUserKey) {
                 messageDisplay += `<div class="row">
                                     <div class="col-2 col-sm-1 col-md-1">
@@ -69,7 +81,7 @@ function LoadChatMessages(chatKey, friendPhoto){
                                     </div>
                                     <div class="col-6 col-sm-7 col-md-7">
                                         <p class="receive">
-                                            ${chat.msg}
+                                            ${msg}
                                             <span class="time float-right" title="${dateTime[0]}">${dateTime[1]}</span>
                                         </p>
                                     </div>
@@ -79,7 +91,7 @@ function LoadChatMessages(chatKey, friendPhoto){
                 messageDisplay += `<div class="row justify-content-end">
                             <div class="col-6 col-sm-7 col-md-7">
                                 <p class="sent float-right">
-                                    ${chat.msg}
+                                    ${msg}
                                     <span class="time float-right" title="${dateTime[0]}">${dateTime[1]}</span>
                                 </p>
                             </div>
@@ -137,15 +149,53 @@ function sendMessage(){
       document.getElementById('txtMessages').focus();
     //   document.getElementById('messages').scrollTo(0, document.getElementById('messages').clientHeight)
         }
-    })
+    });
 
 }
-
-
-
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////////
+//send image
+function ChooseImage() {
+    document.getElementById('imageFile').click();
+}
+
+function SendImage(event) {
+    var file = event.files[0];
+
+    if (!file.type.match("image.*")) {
+        alert("Please select image only.");
+    }
+    else {
+        var reader = new FileReader();
+
+        reader.addEventListener("load", function () {
+            var chatMessage = {
+                userId: currentUserKey,
+                msg: reader.result,
+                msgType: 'image',
+                dateTime: new Date().toLocaleString()
+            };
+
+            firebase.database().ref('chatMessages').child(chatKey).push(chatMessage, function (error) {
+                if (error) alert(error);
+                else {
+
+                    document.getElementById('txtMessage').value = '';
+                    document.getElementById('txtMessage').focus();
+                }
+            });
+        }, false);
+
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    }
+}
+///////////////////////////////////////////////////////////////////////
+
+
+
+
+
 
 function LoadChatList() {
     var db = firebase.database().ref('friend_list');
